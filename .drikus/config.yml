@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=https://github.com/studioroor/drikus-cms/raw/main/schema/drikus-config.schema.json
+collections:
+  - name: home
+    label: Home
+    file: src/content/pages/home.md
+    delete: false
+    fields: &page
+      - { name: title, label: Titel, required: true }
+      - { name: headerImage, label: Header afbeelding, type: image }
+      - { name: description, label: Beschrijving, type: text }
+      - { name: body, label: Inhoud, type: richtext }
+      - { name: leftColumnImages, label: "Foto's linkerkolom", type: list, maxItems: 5, field: { name: image, label: Afbeelding, type: image } }
+      - { name: rightColumnImages, label: "Foto's rechterkolom", type: list, maxItems: 5, field: { name: image, label: Afbeelding, type: image } }
+      - { name: bottomImages, label: Onderste afbeelding(en), type: list, maxItems: 5, field: { name: image, label: Afbeelding, type: image } }
+  - name: fotogalerij
+    label: Fotogalerij
+    file: src/content/pages/fotogalerij.md
+    fields:
+      - { name: title, label: Titel, required: true }
+      - { name: headerImage, label: Header afbeelding, type: image }
+      - { name: description, label: Beschrijving, type: text }
+      - { name: body, label: Inhoud, type: richtext }
+      - { name: galleryImages, label: "Galerij foto's", type: list, field: { name: image, label: Afbeelding, type: image } }
+      - { name: leftColumnImages, label: "Foto's linkerkolom", type: list, maxItems: 5, field: { name: image, label: Afbeelding, type: image } }
+      - { name: rightColumnImages, label: "Foto's rechterkolom", type: list, maxItems: 5, field: { name: image, label: Afbeelding, type: image } }
+      - { name: bottomImages, label: Onderste afbeelding(en), type: list, maxItems: 5, field: { name: image, label: Afbeelding, type: image } }
+  - { name: kaart, label: Kaart, file: src/content/pages/kaart.md, fields: *page }
+  - { name: gastenboek-pagina, label: Gastenboek (pagina), file: src/content/pages/gastenboek.md, fields: *page }
+  - { name: tarieven, label: Tarieven, file: src/content/pages/tarieven.md, fields: *page }
+  - { name: links, label: Links, file: src/content/pages/links.md, fields: *page }
+  - name: contact
+    label: Contact
+    file: src/content/pages/contact.md
+    fields:
+      - { name: title, label: Titel, required: true }
+      - { name: headerImage, label: Header afbeelding, type: image }
+      - { name: description, label: Beschrijving, type: text }
+      - { name: body, label: Inhoud, type: richtext }
+  - name: testimonials
+    label: Gastenboek
+    folder: src/content/testimonials
+    slug: "{{year}}-{{month}}-{{name}}"
+    summary: name
+    sortBy: date
+    sortOrder: desc
+    fields:
+      - { name: name, label: Gast naam, required: true }
+      - { name: date, label: Datum, type: date, required: true }
+      - { name: period, label: Periode (optioneel), hint: "Alleen invullen als de exacte datum onbekend is, bijv. 'augustus/september 2025'. Wordt dan getoond in plaats van de datum." }
+      - { name: location, label: Locatie }
+      - { name: rating, label: Beoordeling, type: number, min: 1, max: 5, step: 0.5, default: 5 }
+      - { name: photo, label: Foto, type: image }
+      - { name: body, label: Bericht, type: text, required: true, maxLength: 1024 }
+  - name: bookings
+    label: Boekingen
+    folder: src/content/bookings
+    slug: "{{year}}-{{month}}-{{day}}-{{guestName}}"
+    summary: guestName
+    sortBy: startDate
+    sortOrder: desc
+    fields:
+      - { name: guestName, label: Gast naam (optioneel), hint: Laat leeg als u anoniem wilt blijven }
+      - { name: startDate, label: Start datum, type: date, required: true }
+      - { name: endDate, label: Eind datum, type: date, required: true }
+      - name: status
+        label: Status
+        type: select
+        default: optie
+        options: [gereserveerd, optie, geblokkeerd]
+        hint: Gereserveerd = definitieve reservering, Optie = voorlopige boeking, Geblokkeerd = niet beschikbaar
+      - { name: notes, label: Notities (privé), type: text, hint: Deze notities zijn alleen voor u zichtbaar }
