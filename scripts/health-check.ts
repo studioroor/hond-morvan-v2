@@ -116,7 +116,7 @@ async function checkUrl(url: string, verbose: boolean): Promise<CheckResult> {
 			method: "GET",
 			headers: {
 				"User-Agent":
-					"HondMorvan-HealthCheck/1.0 (https://github.com/drikusroor/hond-morvan-v2)",
+					"HondMorvan-HealthCheck/1.0 (https://github.com/studioroor/hond-morvan-v2)",
 				Accept:
 					"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 			},

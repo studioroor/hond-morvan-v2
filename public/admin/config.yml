@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: drikusroor/hond-morvan-v2
+  repo: studioroor/hond-morvan-v2
   branch: main
   base_url: https://sveltia-cms-auth.drikusroor.workers.dev
 

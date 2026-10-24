@@ -56,6 +56,8 @@ Decap CMS at `/admin/` with GitHub OAuth backend. Config in `public/admin/config
 
 For local development, run `bun run decap-server` and access `localhost:4321/admin/`.
 
+[Drikus CMS](https://github.com/studioroor/drikus-cms) reads the same content via `.drikus/config.yml`. When you add or change a field, update both configs.
+
 ## Deployment
 
 Push to `main` triggers GitHub Actions (`.github/workflows/deploy.yml`) which builds and deploys to GitHub Pages at hondmorvan.nl.
