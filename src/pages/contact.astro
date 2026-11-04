@@ -1,6 +1,11 @@
 ---
 import { getCollection, getEntry } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import {
+	describeBooking,
+	findOverlappingPairs,
+	toIsoDay,
+} from "../utils/bookingOverlaps";
 
 const page = await getEntry("pages", "contact");
 
@@ -30,6 +35,20 @@ const todayKey = toDayKey(today);
 const upcomingBookings = sortedBookings.filter(
 	(booking) => toDayKey(booking.data.endDate) >= todayKey,
 );
+
+// Surface overlapping bookings in the build log (the CMS also warns on save)
+for (const [a, b] of findOverlappingPairs(
+	upcomingBookings.map((booking) => ({
+		id: booking.id,
+		guestName: booking.data.guestName,
+		startDate: toIsoDay(booking.data.startDate),
+		endDate: toIsoDay(booking.data.endDate),
+	})),
+)) {
+	console.warn(
+		`[boekingen] Overlap: ${a.id} (${describeBooking(a)}) en ${b.id} (${describeBooking(b)})`,
+	);
+}
 
 // Helper function to get status color
 const getStatusColor = (status: string) => {
@@ -110,12 +129,23 @@ const generateCalendarData = (year: number) => {
 				(booking) => toDayKey(booking.data.endDate) === currentDayKey,
 			);
 
+			// A day strictly inside another booking is fully occupied, even when
+			// an overlapping booking starts or ends on it (e.g. back-to-back
+			// stays entered as overlapping periods).
+			const coveringBooking = upcomingBookings.find(
+				(booking) =>
+					toDayKey(booking.data.startDate) < currentDayKey &&
+					toDayKey(booking.data.endDate) > currentDayKey,
+			);
+
 			const isStartDate = Boolean(startBooking);
 			const isEndDate = Boolean(endBooking);
 
 			// Determine changeover type
 			let changeoverType = null;
-			if (isStartDate && isEndDate) {
+			if (coveringBooking) {
+				changeoverType = null;
+			} else if (isStartDate && isEndDate) {
 				changeoverType = "both";
 			} else if (isStartDate) {
 				changeoverType = "start";
@@ -127,7 +157,8 @@ const generateCalendarData = (year: number) => {
 				day,
 				bookings: dayBookings,
 				status:
-					dayBookings.length > 0 ? dayBookings[0].data.status : null,
+					coveringBooking?.data.status ??
+					(dayBookings.length > 0 ? dayBookings[0].data.status : null),
 				changeoverType,
 				startStatus: startBooking?.data.status ?? null,
 				endStatus: endBooking?.data.status ?? null,
