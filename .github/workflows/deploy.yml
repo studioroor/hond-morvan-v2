@@ -6,11 +6,12 @@ on:
     branches: [ main ]
   # Allows you to run this workflow manually from the Actions tab on GitHub.
   workflow_dispatch:
-  # Rebuild daily so the availability calendar (which uses the build date to
+  # Rebuild monthly so the availability calendar (which uses the build date to
   # hide past bookings and pick which years to show) stays current without
-  # needing a content change.
+  # needing a content change. Running on the 1st makes the switch to the next
+  # season's years happen exactly on 1 December.
   schedule:
-    - cron: "15 3 * * *"
+    - cron: "15 3 1 * *"
 
 # Allow this job to clone the repo and create a page deployment
 permissions:
