@@ -16,8 +16,115 @@
     ></script>
 
     <script>
+      import {
+        describeBooking,
+        findOverlapsWith,
+        parseBookingMarkdown,
+        toIsoDay,
+        type BookingRange,
+      } from "../utils/bookingOverlaps";
+
+      declare const CMS: any;
+
       CMS.registerPreviewStyle("/styles/global.css");
       CMS.registerPreviewStyle("/styles/admin-preview.css");
+
+      // Keep in sync with `backend.repo` / `backend.branch` in public/admin/config.yml
+      const REPO = "studioroor/hond-morvan-v2";
+      const BRANCH = "main";
+      const BOOKINGS_DIR = "src/content/bookings";
+
+      const githubToken = (): string | undefined => {
+        try {
+          return JSON.parse(localStorage.getItem("decap-cms-user") || "{}")
+            .token;
+        } catch {
+          return undefined;
+        }
+      };
+
+      const fetchPublishedBookings = async (): Promise<BookingRange[]> => {
+        const token = githubToken();
+        const listing = await fetch(
+          `https://api.github.com/repos/${REPO}/contents/${BOOKINGS_DIR}?ref=${BRANCH}`,
+          {
+            headers: token ? { Authorization: `token ${token}` } : {},
+            cache: "no-store",
+          },
+        );
+        if (!listing.ok) throw new Error(`GitHub API ${listing.status}`);
+        const files: { path: string; name: string; download_url: string }[] =
+          await listing.json();
+
+        const bookings = await Promise.all(
+          files
+            .filter((file) => file.name.endsWith(".md"))
+            .map(async (file) => {
+              const res = await fetch(file.download_url, { cache: "no-store" });
+              return res.ok
+                ? parseBookingMarkdown(file.path, await res.text())
+                : null;
+            }),
+        );
+        return bookings.filter((b): b is BookingRange => b !== null);
+      };
+
+      // Warn before saving a booking that overlaps an existing one. Arriving
+      // on another booking's departure day is fine and does not warn.
+      CMS.registerEventListener({
+        name: "preSave",
+        handler: async ({ entry }: { entry: any }) => {
+          if (entry.get("collection") !== "bookings") return;
+
+          const data = entry.get("data");
+          const startDate = data.get("startDate");
+          const endDate = data.get("endDate");
+          if (!startDate || !endDate) return;
+
+          const current: BookingRange = {
+            id: entry.get("path") || "__new__",
+            guestName: data.get("guestName"),
+            startDate: toIsoDay(startDate),
+            endDate: toIsoDay(endDate),
+          };
+
+          if (current.endDate <= current.startDate) {
+            throw new Error(
+              "De einddatum moet na de startdatum liggen. Pas de datums aan.",
+            );
+          }
+
+          let existing: BookingRange[];
+          try {
+            existing = await fetchPublishedBookings();
+          } catch (error) {
+            // Never block saving because the check itself failed.
+            console.warn("Overlapcontrole boekingen overgeslagen:", error);
+            return;
+          }
+
+          const overlaps = findOverlapsWith(current, existing);
+          if (overlaps.length === 0) return;
+
+          const proceed = window.confirm(
+            [
+              `Let op: deze boeking (${describeBooking(current)}) overlapt met:`,
+              "",
+              ...overlaps.map((b) => `• ${describeBooking(b)}`),
+              "",
+              "Aankomen op de vertrekdag van een andere boeking is prima, maar hier overlappen de verblijven echt.",
+              "",
+              "Klik op OK om toch op te slaan, of op Annuleren om de datums aan te passen.",
+            ].join("\n"),
+          );
+
+          if (!proceed) {
+            throw new Error(
+              "Niet opgeslagen omdat de boeking overlapt met een andere boeking.",
+            );
+          }
+        },
+      });
     </script>
   </body>
 </html>
