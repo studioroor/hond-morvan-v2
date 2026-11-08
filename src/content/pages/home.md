@@ -1,8 +1,7 @@
 ---
 title: Honden welkom!
 headerImage: /images/hondmorvan-header1.png
-description: Vakantiehuis gastenhuis huisje huren hond honden welkom in de
-  Morvan Frankrijk natuur rust location chien bienvenue gite gîte
+description: Vakantiehuis gastenhuis huisje huren hond honden welkom in de Morvan Frankrijk natuur rust location chien bienvenue gite gîte 4 personen
 leftColumnImages:
   - /images/hondmorvan-homelinks1.png
 rightColumnImages:
@@ -12,6 +11,7 @@ rightColumnImages:
 bottomImages:
   - /images/gite-herfst.jpg
 ---
+
 # Honden welkom!
 
 In Regional Natuurpark 'Le Morvan', op 700 km van Utrecht, staat dit sfeervolle stenen huisje met WiFi-verbinding en laadpaal op een flinke lap grond. Het ligt op ruime afstand van de hoofdwoning in een **eigen omheinde boomgaard**, op het hoogste punt van de streek (600 m). Bekijk het filmpje:
