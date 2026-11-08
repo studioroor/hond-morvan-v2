@@ -11,7 +11,7 @@ rightColumnImages:
   - /images/hondmorvan-tarievenrechts4.png
   - /images/hondmorvan-tarievenrechts5.png
 ---
-# Tarieven 2026/2027
+# Tarieven 2027
 
 * **April, mei:** €360 per week
 * **Juni, september, oktober:** €395 per week
